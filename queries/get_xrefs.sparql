@@ -1,0 +1,34 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX oboInOwl: <http://www.geneontology.org/formats/oboInOwl#>
+
+SELECT DISTINCT ?entity_id ?xref_id
+WHERE {
+   ?entity rdf:type owl:Class ;
+           oboInOwl:id ?entity_id ;
+           oboInOwl:hasDbXref ?xref_id .
+   FILTER (!isBlank(?entity))
+   FILTER (
+      STRSTARTS(STR(?xref_id),"UBERON:") ||
+      STRSTARTS(STR(?xref_id),"FMA:") ||
+      STRSTARTS(STR(?xref_id),"CL:") ||
+      STRSTARTS(STR(?xref_id),"CHEBI:") ||
+      STRSTARTS(STR(?xref_id),"HP:") ||
+      STRSTARTS(STR(?xref_id),"DOID:") ||
+      STRSTARTS(STR(?xref_id),"MONDO:") ||
+      STRSTARTS(STR(?xref_id),"CAS:") ||
+      STRSTARTS(STR(?xref_id),"DrugBank:") ||
+      STRSTARTS(STR(?xref_id),"MESH:") || STRSTARTS(STR(?xref_id), "MSH:") ||
+      STRSTARTS(STR(?xref_id),"KEGG:") ||
+      STRSTARTS(STR(?xref_id),"NCIT:") || STRSTARTS(STR(?xref_id),"NCI:") ||
+      STRSTARTS(STR(?xref_id),"UMLS:") || STRSTARTS(STR(?xref_id), "UMLS_CUI:") ||
+      STRSTARTS(STR(?xref_id),"ICD9CM:") || STRSTARTS(STR(?xref_id),"ICD9:") ||
+      STRSTARTS(STR(?xref_id),"ICD10CM:") || STRSTARTS(STR(?xref_id),"ICD10:") ||
+      STRSTARTS(STR(?xref_id),"OMIM:") ||
+      STRSTARTS(STR(?xref_id),"SNOMEDCT_US:") ||
+      STRSTARTS(STR(?xref_id),"LINCS:") ||
+      STRSTARTS(STR(?xref_id),"EFO:") ||
+      STRSTARTS(STR(?xref_id),"Orphanet:")
+   )
+}

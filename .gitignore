@@ -1,0 +1,13 @@
+.DS_Store
+
+dist
+tmp
+mirror
+__pycache__
+
+*.egg-info
+*.mdb
+*.db
+
+xref-*.json
+!xref-all.json
