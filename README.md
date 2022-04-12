@@ -28,6 +28,6 @@ $ make xref_all
 
 ## ontoxref for Python 3.x
 
-See [this page](https://github.com/protegeteam/ontoxref-tool/pypi) for more information.
+See [this page](https://github.com/protegeteam/ontoxref-tool/tree/main/pypi) for more information.
 
 
