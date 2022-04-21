@@ -80,7 +80,6 @@ $(MIRRORDIR)/%.owl: mirror-% | $(MIRRORDIR)
 	if cmp -s $(TMPDIR)/mirror-$*.owl $@ ; then echo "Mirror identical, ignoring."; else echo "Mirrors different, updating."; fi && \
 	cp $(TMPDIR)/mirror-$*.owl $@
 
-
 # ----------------------------------------
 # Extracting xrefs from ontologies
 # ----------------------------------------
@@ -92,8 +91,29 @@ define extract_xrefs
 	$(JQ) -s 'map(to_entries) | add | group_by(.key) | map({ key: (.[0].key), value:([.[].value] | add | unique) }) | from_entries' $(TMPDIR)/xrefs.json $(TMPDIR)/inv_xrefs.json > $@
 endef
 
+define extract_loinc_mappings
+	$(CURL) --request GET \
+		--url 'https://data.bioontology.org/mappings?ontologies=LOINC%2C$(1)&pagesize=5000' \
+		--header 'Authorization: apiKey token=d1819526-0173-4d11-bd43-adda0999d27c' > $(TMPDIR)/mappings.json
+	$(JQ) '.collection[].classes | map(."@id"| sub("http://purl.bioontology.org/ontology/LNC/";"LOINC:") | sub("http://purl.obolibrary.org/obo/$(1)_";"$(1):")) | {(.[0]): [.[1]]}' $(TMPDIR)/mappings.json > $(TMPDIR)/xrefs.json
+	$(JQ) '.collection[].classes | map(."@id"| sub("http://purl.bioontology.org/ontology/LNC/";"LOINC:") | sub("http://purl.obolibrary.org/obo/$(1)_";"$(1):")) | {(.[1]): [.[0]]}' $(TMPDIR)/mappings.json > $(TMPDIR)/inv_xrefs.json
+	$(JQ) -s 'map(to_entries) | add | group_by(.key) | map({ key: (.[0].key), value:([.[].value] | add | unique) }) | from_entries' $(TMPDIR)/xrefs.json $(TMPDIR)/inv_xrefs.json > $@
+endef
+
 xref-%.json: $(MIRRORDIR)/%.owl
 	$(call extract_xrefs,$^)
+
+map-loinc-uberon.json:
+	$(call extract_loinc_mappings,UBERON)
+
+map-loinc-cl.json:
+	$(call extract_loinc_mappings,CL)
+
+map-loinc-pr.json:
+	$(call extract_loinc_mappings,PR)
+
+map-loinc-chebi.json:
+	$(call extract_loinc_mappings,CHEBI)
 
 .PHONY: xref-all
 .PRECIOUS: xref-all.json
@@ -102,7 +122,11 @@ xref-all: xref-uberon.json \
 		xref-doid.json \
 		xref-mondo.json \
 		xref-chebi.json \
-		xref-pr.json
+		xref-pr.json \
+		map-loinc-uberon.json \
+		map-loinc-cl.json \
+		map-loinc-pr.json \
+		map-loinc-chebi.json
 	$(JQ) -s 'map(to_entries) | add | group_by(.key) | map({ key: (.[0].key), value:([.[].value] | add | unique) }) | from_entries' $^ > $@.json
 
 xref-%-only: xref-all.json
