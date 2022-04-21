@@ -21,13 +21,10 @@ WHERE {
       STRSTARTS(STR(?xref_id),"DrugBank:") ||
       STRSTARTS(STR(?xref_id),"MESH:") || STRSTARTS(STR(?xref_id), "MSH:") ||
       STRSTARTS(STR(?xref_id),"KEGG:") ||
-      STRSTARTS(STR(?xref_id),"NCIT:") || STRSTARTS(STR(?xref_id),"NCI:") ||
       STRSTARTS(STR(?xref_id),"UMLS:") || STRSTARTS(STR(?xref_id), "UMLS_CUI:") ||
       STRSTARTS(STR(?xref_id),"ICD9CM:") || STRSTARTS(STR(?xref_id),"ICD9:") ||
       STRSTARTS(STR(?xref_id),"ICD10CM:") || STRSTARTS(STR(?xref_id),"ICD10:") ||
       STRSTARTS(STR(?xref_id),"OMIM:") ||
-      STRSTARTS(STR(?xref_id),"SNOMEDCT_US:") ||
-      STRSTARTS(STR(?xref_id),"LINCS:") ||
       STRSTARTS(STR(?xref_id),"EFO:") ||
       STRSTARTS(STR(?xref_id),"Orphanet:")
    )
