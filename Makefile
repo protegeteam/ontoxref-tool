@@ -10,6 +10,7 @@ TMPDIR=tmp
 ROBOT=robot # ROBOT tool - http://robot.obolibrary.org
 CSVJSON=csvjson # CSVJSON - https://csvjson.com
 JQ=jq # JQ - https://stedolan.github.io/jq/
+CURL=curl
 
 # ----------------------------------------
 # Required working directories
@@ -30,7 +31,11 @@ define download_ontology_base
 		mv $@.tmp.owl $(TMPDIR)/$@.owl
 endef
 
-
+define download_ontology
+	curl -L $(URIBASE)/$(1).owl --create-dirs -o $(MIRRORDIR)/$(1).owl --retry 4 --max-time 5000 && \
+		$(ROBOT) convert -i $(MIRRORDIR)/$(1).owl -o $@.tmp.owl && \
+		mv $@.tmp.owl $(TMPDIR)/$@.owl
+endef
 
 ## ONTOLOGY: uberon
 .PHONY: mirror-uberon
@@ -55,6 +60,12 @@ mirror-doid:
 .PRECIOUS: $(MIRRORDIR)/hp.owl
 mirror-hp: | $(TMPDIR)
 	if [ $(MIR) = true ]; then $(call download_ontology_base,hp); fi
+
+## ONTOLOGY: pr
+.PHONY: mirror-pr
+.PRECIOUS: $(MIRRORDIR)/pr.owl
+mirror-pr: | $(TMPDIR)
+	if [ $(MIR) = true ]; then $(call download_ontology,pr); fi
 
 ## ONTOLOGY: chebi
 .PHONY: mirror-chebi
@@ -86,7 +97,12 @@ xref-%.json: $(MIRRORDIR)/%.owl
 
 .PHONY: xref-all
 .PRECIOUS: xref-all.json
-xref-all: xref-uberon.json xref-hp.json xref-doid.json xref-mondo.json xref-chebi.json
+xref-all: xref-uberon.json \
+		xref-hp.json \
+		xref-doid.json \
+		xref-mondo.json \
+		xref-chebi.json \
+		xref-pr.json
 	$(JQ) -s 'map(to_entries) | add | group_by(.key) | map({ key: (.[0].key), value:([.[].value] | add | unique) }) | from_entries' $^ > $@.json
 
 xref-%-only: xref-all.json
