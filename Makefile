@@ -31,8 +31,14 @@ define download_ontology_base
 		mv $@.tmp.owl $(TMPDIR)/$@.owl
 endef
 
-define download_ontology
+define download_owl_ontology
 	curl -L $(URIBASE)/$(1).owl --create-dirs -o $(MIRRORDIR)/$(1).owl --retry 4 --max-time 5000 && \
+		$(ROBOT) convert -i $(MIRRORDIR)/$(1).owl -o $@.tmp.owl && \
+		mv $@.tmp.owl $(TMPDIR)/$@.owl
+endef
+
+define download_obo_ontology
+	curl -L $(URIBASE)/$(1).obo --create-dirs -o $(MIRRORDIR)/$(1).owl --retry 4 --max-time 5000 && \
 		$(ROBOT) convert -i $(MIRRORDIR)/$(1).owl -o $@.tmp.owl && \
 		mv $@.tmp.owl $(TMPDIR)/$@.owl
 endef
@@ -65,7 +71,7 @@ mirror-hp: | $(TMPDIR)
 .PHONY: mirror-pr
 .PRECIOUS: $(MIRRORDIR)/pr.owl
 mirror-pr: | $(TMPDIR)
-	if [ $(MIR) = true ]; then $(call download_ontology,pr); fi
+	if [ $(MIR) = true ]; then $(call download_obo_ontology,pr); fi
 
 ## ONTOLOGY: chebi
 .PHONY: mirror-chebi
