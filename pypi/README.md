@@ -14,10 +14,18 @@ pip install ontoxref
 
 ## Example code
 
+Import `ConnectionManager` from the backend module
 ```python
 from ontoxref.backend import ConnectionManager
+```
 
-con_mngr = ConnectionManager.init("/path/to/xref-all.json")
+Initiate the database once (it may take some time to load).
+```python
+con_mngr = ConnectionManager.init()
+```
+
+Pass the connection in your code to use the service.
+```python
 con = con_mngr.get_connection()
 service = con.get_service("XrefService")
 
@@ -27,3 +35,9 @@ service.find_xref("EFO:0000095", "ICD10CM")
 # Find DOID code for 'MONDO:0004948'"
 service.find_xref("MONDO:0004948", "DOID")
 ```
+
+Note: The database initiation can be done using a local file
+```python
+con_mngr = ConnectionManager.init_locally("path/to/file")
+```
+

@@ -1,5 +1,7 @@
 import json
 import random
+import requests
+
 from lmdbm import Lmdb
 from ontoxref.service import XrefService
 
@@ -42,14 +44,28 @@ class ConnectionManager:
         self.open_connections = {}
 
     @staticmethod
-    def init(file_location, db_name="xref.db"):
+    def init_locally(file_location, db_name="xref.db"):
         file = open(file_location)
-        mappings = json.load(file)
-        with JsonLmdb.open(db_name, 'n') as db:
-            for key, value in mappings.items():
-                db[key] = value
-            db.close()
+        raw_data = json.load(file)
+        ConnectionManager._init_database(raw_data, db_name)
         return ConnectionManager(db_name)
+
+    @staticmethod
+    def init(db_name="xref.db"):
+        url = "https://raw.githubusercontent.com/protegeteam/ontoxref-tool/main/xref-all.json"
+        session = requests.Session()
+        raw_data = session.get(url).json()
+        ConnectionManager._init_database(raw_data, db_name)
+        return ConnectionManager(db_name)
+
+    def _init_database(raw_data, db_name):
+        with JsonLmdb.open(db_name, 'n') as db:
+            counter = 0
+            for key, value in raw_data.items():
+                db[key] = value
+                counter += 1
+            print("Loading " + str(counter) + " items successfully")
+            db.close()
 
     def get_connection(self):
         db = self._open_database()
